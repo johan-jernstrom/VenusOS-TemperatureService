@@ -182,7 +182,7 @@ def update_W1():
                 lines = fd.read().splitlines()
                 if lines: 
                     logging.debug("RawValue ID" + id + ":" + lines[0])
-                    if lines[0].isnumeric():
+                    if lines[0].strip('-').isnumeric():
                         value = float(lines[0])
                         value = round(value / 1000.0, 1)
                 fd.close
