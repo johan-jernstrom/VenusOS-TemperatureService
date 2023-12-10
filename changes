@@ -1,3 +1,5 @@
+v0.51:
+	Correction for No negative numbers were displayed
 v0.5:
 	Fixed issue #4 Temperatures freezing when inactive
 	Fixed issue #3 Phantom of the temperature probe
