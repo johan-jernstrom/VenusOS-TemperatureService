@@ -25,6 +25,9 @@ No Settings needed for 1 Wire (e.g. DS18B20) all you need is to install SetupHel
 ### Enabled Features in this Setup:
   - Raspberry Pi CPU temperature
   - 1-Wire Support (Temperatures) Data Port GPIO 26 on RPi
+  
+    Please keep in mind that there can always be conflicts with the GPIO's. Depending on what hardware you have (CAN hat etc)
+    The 1Wire GPIO Port can be adjusted in u-boot/config.txt after install
 
 ### Can be activated but not tested (in dbus-i2c.py)
   - i2c Sensors
