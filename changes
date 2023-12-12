@@ -1,3 +1,6 @@
+v0.52:
+	Fixed Service crashes if no 1Wire Sensor is connected (only use CPU Temp)
+	Optimized Setup Scipt for install and uninstall
 v0.51:
 	Correction for No negative numbers were displayed
 v0.5:

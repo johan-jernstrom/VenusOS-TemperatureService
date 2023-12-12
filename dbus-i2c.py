@@ -152,42 +152,43 @@ def update_W1():
 #check, create and update 1 Wire devices
 
     #read list of slaves
-    fd = open('/sys/devices/w1_bus_master1/w1_master_slaves','r')
-    w1Slaves = fd.read().splitlines()
-    fd.close
-    
-    #Loop through all connected 1Wire devices, create dbusService if necessary
-    for id in w1Slaves: 
-        familyID = id[0:2]
-        deviceID = id[3:]
-        logging.debug("1Wire Family ID:" + familyID + " Full DevicesID:" + id)
+    if os.path.isfile('/sys/devices/w1_bus_master1/w1_master_slaves'):
+        fd = open('/sys/devices/w1_bus_master1/w1_master_slaves','r')
+        w1Slaves = fd.read().splitlines()
+        fd.close
         
-        #DS18B20 Temp Sensors
-        if familyID == '28':
-            if ('W1-temp:'+ id) not in dbusservice:
-                logging.info("1Wire Sensor found with no Service -> Create:")
-                                
-                dbusservice['W1-temp:'+ id] = new_service(base, 'temperature', 'Wire', '1Wire', SCount+1, 100+SCount, deviceID)
-                dbusservice['W1-temp:'+ id]['/ProductName'] = '1Wire Sensor ' + id
-                dbusservice['W1-temp:'+ id]['/HardwareVersion'] = deviceID
-                dbusservice['W1-temp:'+ id]['/FirmwareVersion'] = familyID
-                initSettings(newSettings)
-                readSettings(settingObjects)
-                logging.info("Created Service 1Wire ID: " + str(SCount) + " Settings ID:" + str(SCount))
+        #Loop through all connected 1Wire devices, create dbusService if necessary
+        for id in w1Slaves: 
+            familyID = id[0:2]
+            deviceID = id[3:]
+            logging.debug("1Wire Family ID:" + familyID + " Full DevicesID:" + id)
             
-            #read Temp value
-            value = None #invalidate value
-            if os.path.exists('/sys/devices/w1_bus_master1/'+ id +'/temperature'):
-                fd  = open('/sys/devices/w1_bus_master1/'+ id +'/temperature','r')
-                lines = fd.read().splitlines()
-                if lines: 
-                    logging.debug("RawValue ID" + id + ":" + lines[0])
-                    if lines[0].strip('-').isnumeric():
-                        value = float(lines[0])
-                        value = round(value / 1000.0, 1)
-                fd.close
+            #DS18B20 Temp Sensors
+            if familyID == '28':
+                if ('W1-temp:'+ id) not in dbusservice:
+                    logging.info("1Wire Sensor found with no Service -> Create:")
+                                    
+                    dbusservice['W1-temp:'+ id] = new_service(base, 'temperature', 'Wire', '1Wire', SCount+1, 100+SCount, deviceID)
+                    dbusservice['W1-temp:'+ id]['/ProductName'] = '1Wire Sensor ' + id
+                    dbusservice['W1-temp:'+ id]['/HardwareVersion'] = deviceID
+                    dbusservice['W1-temp:'+ id]['/FirmwareVersion'] = familyID
+                    initSettings(newSettings)
+                    readSettings(settingObjects)
+                    logging.info("Created Service 1Wire ID: " + str(SCount) + " Settings ID:" + str(SCount))
                 
-            dbusservice['W1-temp:'+ id]['/Temperature'] = value
+                #read Temp value
+                value = None #invalidate value
+                if os.path.exists('/sys/devices/w1_bus_master1/'+ id +'/temperature'):
+                    fd  = open('/sys/devices/w1_bus_master1/'+ id +'/temperature','r')
+                    lines = fd.read().splitlines()
+                    if lines: 
+                        logging.debug("RawValue ID" + id + ":" + lines[0])
+                        if lines[0].strip('-').isnumeric():
+                            value = float(lines[0])
+                            value = round(value / 1000.0, 1)
+                    fd.close
+                    
+                dbusservice['W1-temp:'+ id]['/Temperature'] = value
 
     #Check 1 Wire Service Connection
     for item in dbusservice:
