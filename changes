@@ -1,3 +1,10 @@
+v0.6: 
+	Fork from Rikkert-RS VenusOS-TemperatureService 
+	Added functionality to connected and activate a buzzer for an audible alarm if the temperature goes above a defined max value.
+	Added changes to the GUI to enable setting the HighTempAlarm manually and individually for each sensor.
+v0.52:
+	Fixed Service crashes if no 1Wire Sensor is connected (only use CPU Temp)
+	Optimized Setup Scipt for install and uninstall
 v0.52:
 	Fixed Service crashes if no 1Wire Sensor is connected (only use CPU Temp)
 	Optimized Setup Scipt for install and uninstall

@@ -36,6 +36,11 @@ import logging
 import os
 from pprint import pprint
 #---------------------
+
+#-- ALARM ---------------------
+from alarmbuzzer import AlarmBuzzer as AlarmBuzzer
+#-- ALARM ---------------------
+
 # Import i2c interface driver, this is a modified library stored in the same directory as this file
 from i2c import AM2320 as AM2320
 
@@ -129,8 +134,6 @@ def update_adc():
                 dbusservice['adc-temp'+str(channel)]['/Status'] = 0
                 dbusservice['adc-temp'+str(channel)]['/Temperature'] = value
  
-   
-
 #   update Pi CPU temperature 
 def update_rpi():
     if not os.path.exists('/sys/devices/virtual/thermal/thermal_zone0/temp'):
@@ -146,6 +149,16 @@ def update_rpi():
         value = round(value / 1000.0, 1)
         dbusservice['cpu-temp']['/Temperature'] = value 
         fd.close
+
+        try:
+            #read settings
+            [path, object] = settingObjects["/Settings/Temperature/" + str(1) + "/HighTempAlarm"]
+            highTempAlarm = object[path]
+            logging.debug("Checking HighTempAlarm for CPU Temperature: " + str(value) + " HighTempAlarm: " + str(highTempAlarm))
+            alarmBuzzer.CheckTemp(value, highTempAlarm, "1")
+        except:
+            logging.error("Error reading HighTempAlarm for CPU Temperature")
+
 
 #update W1 temp
 def update_W1():
@@ -189,6 +202,16 @@ def update_W1():
                     fd.close
                     
                 dbusservice['W1-temp:'+ id]['/Temperature'] = value
+                logging.debug("1Wire Sensor " + id + " Temperature: " + str(value))
+
+                try:
+                    #read settings
+                    [path, object] = settingObjects["/Settings/Temperature/" + deviceID + "/HighTempAlarm"]
+                    highTempAlarm = object[path]
+                    logging.debug("Checking HighTempAlarm for 1Wire Sensor " + deviceID + " Temperature: " + str(value) + " HighTempAlarm: " + str(highTempAlarm))
+                    alarmBuzzer.CheckTemp(value, highTempAlarm, deviceID)
+                except:
+                    logging.error("Error checking HighTempAlarm for 1Wire Sensor " + deviceID)
 
     #Check 1 Wire Service Connection
     for item in dbusservice:
@@ -222,7 +245,8 @@ settingObjects = {}  # Used to identify the dBus object and path for each settin
 settingDefaults = {'/Offset': [0, -10, 10],
                    '/Scale'  : [1.0, -5, 5],
                    '/TemperatureType'   : [0, 0, 3],
-                   '/CustomName'        : ['', 0, 0]}
+                   '/CustomName'        : ['', 0, 0],
+                   '/HighTempAlarm'        : ['', 0, 0]}
 
 # Values changed in the GUI need to be updated in the settings
 # Without this changes made through the GUI change the dBusObject but not the persistent setting
@@ -344,9 +368,13 @@ def new_service(base, type, physical, logical, id, instance, settingId = False):
         if settingId:
             addSetting(setting , '/TemperatureType', self)
             addSetting(setting , '/CustomName', self)
+            addSetting(setting , '/HighTempAlarm', self)
+
         self.add_path('/TemperatureType', 0, writeable=True, onchangecallback = lambda x,y: handle_changed_value(setting,x,y) )
         self.add_path('/CustomName', '', writeable=True, onchangecallback = lambda x,y: handle_changed_value(setting,x,y) )
         self.add_path('/Function', 1, writeable=True )
+        self.add_path('/HighTempAlarm', '', writeable=True, onchangecallback = lambda x,y: handle_changed_value(setting,x,y))
+
         if 'adc' in physical:
             if settingId:
                 addSetting(setting,'/Scale',self)
@@ -405,6 +433,8 @@ initSettings(newSettings)
 # Do something to read the saved settings and apply them to the objects
 readSettings(settingObjects)
 
+alarmBuzzer = AlarmBuzzer()   # create the alarm buzzer object
+
 # Do a first update so that all the readings appear.
 update()
 # update every 10 seconds - temperature and humidity should move slowly so no need to demand
@@ -417,5 +447,3 @@ mainloop = GLib.MainLoop()
 logging.info ('Connected to dbus, and switching over to GLib.MainLoop() (= event based)')
 mainloop.run()
 #----------------------
-
-

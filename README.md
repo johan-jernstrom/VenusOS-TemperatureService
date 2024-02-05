@@ -1,15 +1,21 @@
 ## Venus OS Temperature Service
-### Fork from LHardwick Victron-Service
-
+### Fork from Rikkert-RS VenusOS-TemperatureService 
 This is a service to publish temperature type data onto the DBus of VenusOs running on a Raspberry Pi device.  
 Note: Currently this will not display the CPU temperature on Venus GX, only on RPi.
 
 Added Support to install this with Kevin Windrem's Venus OS Setup Helper (https://github.com/kwindrem/SetupHelper)
+### Fork from LHardwick Victron-Service
+In this fork, in addition to displaying temperatures, a buzzer is connected and activated for an audible alarm if the temperature goes above a defined max value.
+A button os also connected to silence the alarm.
+
+NOTE: The install process and integration with SetupHelper is NOT yet testet or completed. I only added roughly what is needed in the current scripts but havent had time to start testing it out. Doubt it will work in the current form. 
+Therefore, the install is currently made by manually adding and modifying the files on the RPi after installing the unmodified version of VenusOS-TemperatureService made by Rikkert-RS... 
+Future ambition is to test and modify also the install process in order to achieve a fully automated install. 
 
 ## INSTALL INSTRUCTIONS
 No Settings needed for 1 Wire (e.g. DS18B20) all you need is to install SetupHelper and configure a custom Package.
   - Package name: VenusOS-TemperatureService
-  - GitHub user: Rikkert-RS
+  - GitHub user: jernstrom-johan
   - GitHub Tag: latest
 
       ### Screenshots

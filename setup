@@ -3,6 +3,7 @@
 # install  TemperatureService for Victron Venus OS on Raspberry Pi
 
 overlayFile="/u-boot/overlays/w1-gpio.dtbo"
+guiFile="/opt/victronenergy/gui/qml/PageTemperatureSensor.qml"
 configFile="/u-boot/config.txt"
 
 #
@@ -34,10 +35,23 @@ if [ $scriptAction == 'INSTALL' ] ; then
 
     logMessage "++ Installing VenusOS Temperature Service"
 
+    opkg update 
+    opkg install python3-dev
+    opkg install python3-xmlrpc
+    opkg install python3-pip
+    python3 -m pip install rpi.gpio
+    python3 -m pip install gpiozero
+
+    logMessage "++ Done installing prerequisites"
+
+
     installService $packageName
 	
 	# install DT overlay to for 1-Wire
     updateActiveFile "$overlayFile"
+
+    # modify GUI to add the setting for the high temperature alarm
+    updateActiveFile "$guiFile"
 	
 	if [ $(grep -c "w1-gpio" "$configFile") == 0 ]; then
         logMessage "activating 1-Wire overlay"
@@ -57,6 +71,8 @@ if [ $scriptAction == 'UNINSTALL' ] ; then
     removeService $packageName
 	
 	restoreActiveFile "$overlayFile"
+
+	restoreActiveFile "$guiFile"
 	
 	# remove mods from configFile - do not use restore in case other mods were made manually
     if [ -f "$configFile" ]; then
