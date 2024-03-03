@@ -90,6 +90,20 @@ MbPage {
 			enableSpaceBar: false
 		}
 
+		MbSpinBox {
+            description: qsTr ("High Temp Alarm")
+			item
+			{
+				bind: Utils.path(root.bindPrefix, "/HighTempAlarm")
+				unit: "V"
+				decimals: 0
+				step: 1
+				min: -50
+				max: 150
+			}
+			writeAccessLevel: User.AccessUser
+        }
+
 		MbItemValue {
 			id: humidity
 			description: qsTr("Humidity")
