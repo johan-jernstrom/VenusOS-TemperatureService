@@ -101,6 +101,7 @@ MbPage {
 				min: -50
 				max: 150
 			}
+			show: item.valid
 			writeAccessLevel: User.AccessUser
         }
 
